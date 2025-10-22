@@ -1,4 +1,4 @@
-package com.magento.sneakov.ui.theme
+package com.magento.sneakov.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
