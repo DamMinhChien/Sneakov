@@ -26,7 +26,7 @@ fun SneakovApp() {
 
     SneakovTheme {
         Scaffold(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier.fillMaxSize(),
             topBar = {
                 if (currentRoute !in noTopBarScreens) {
                     TopBar()
