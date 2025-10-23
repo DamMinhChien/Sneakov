@@ -5,7 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.magento.sneakov.presentation.ui.screen.login.LoginScreen
+import com.magento.sneakov.presentation.ui.screen.auth.LoginScreen
 import com.magento.sneakov.presentation.ui.screen.onboarding.OnboardingScreen
 
 @Composable

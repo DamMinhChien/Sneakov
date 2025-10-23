@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -78,4 +79,6 @@ dependencies {
     implementation("io.insert-koin:koin-android:3.4.3")
     implementation("io.insert-koin:koin-androidx-compose:3.4.3")
 
+    //implementation("br.com.devsrsouza.compose.icons.android:material:1.1.0")
+    implementation("br.com.devsrsouza.compose.icons:font-awesome:1.1.1")
 }
