@@ -34,4 +34,3 @@ val Typography = DefaultTypography.copy(
     labelMedium = DefaultTypography.labelMedium.copy(fontFamily = Nunito),
     labelSmall = DefaultTypography.labelSmall.copy(fontFamily = Nunito)
 )
-
