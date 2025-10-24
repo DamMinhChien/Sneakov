@@ -22,7 +22,7 @@ import com.magento.sneakov.R
 import com.magento.sneakov.presentation.ui.theme.SneakovTheme
 
 @Composable
-fun LoginScreen() {
+fun AuthScreen(onNavigateToHome: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -47,7 +47,7 @@ fun LoginScreen() {
                 contentScale = ContentScale.Crop
             )
         }
-        LoginCard(modifier = Modifier.align(Alignment.BottomCenter))
+        AuthCard(modifier = Modifier.align(Alignment.BottomCenter), onNavigateToHome = onNavigateToHome)
     }
 
 }
@@ -56,6 +56,6 @@ fun LoginScreen() {
 @Preview(showSystemUi = true, showBackground = true)
 fun SneakovAppPreview() {
     SneakovTheme {
-        LoginScreen()
+        AuthScreen(onNavigateToHome = {})
     }
 }

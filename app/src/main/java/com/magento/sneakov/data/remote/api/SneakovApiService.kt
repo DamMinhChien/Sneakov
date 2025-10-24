@@ -1,0 +1,11 @@
+package com.magento.sneakov.data.remote.api
+
+import com.magento.sneakov.data.remote.dto.LoginRequestDto
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.POST
+
+interface SneakovApiService {
+    @POST("integration/customer/token")
+    suspend fun login(@Body request: LoginRequestDto) : Response<String>
+}

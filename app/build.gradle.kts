@@ -81,4 +81,6 @@ dependencies {
 
     //implementation("br.com.devsrsouza.compose.icons.android:material:1.1.0")
     implementation("br.com.devsrsouza.compose.icons:font-awesome:1.1.1")
+
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
 }
