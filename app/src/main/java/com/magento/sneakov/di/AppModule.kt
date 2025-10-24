@@ -9,7 +9,9 @@ import com.magento.sneakov.data.remote.api.SneakovApiService
 import com.magento.sneakov.data.respository.AuthRepositoryImpl
 import com.magento.sneakov.domain.respository.AuthRepository
 import com.magento.sneakov.domain.usecase.LoginUseCase
+import com.magento.sneakov.domain.usecase.RegisterUseCase
 import com.magento.sneakov.presentation.ui.screen.auth.LoginViewModel
+import com.magento.sneakov.presentation.ui.screen.auth.RegisterViewModel
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -18,7 +20,9 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-private val BASE_URL = "https://overcontented-berniece-congressionally.ngrok-free.dev" + "/rest/all/V1/"
+
+private val BASE_URL =
+    "https://overcontented-berniece-congressionally.ngrok-free.dev" + "/rest/all/V1/"
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app_preferences")
 val appModule = module {
     // ⚙️ DataStore
@@ -65,9 +69,12 @@ val appModule = module {
     single<AuthRepository> { AuthRepositoryImpl(get()) }
 
     // UseCase
-    factory{ LoginUseCase(get(), get()) }
+    factory { LoginUseCase(get(), get()) }
+    factory { RegisterUseCase(get()) }
 
     // ViewModel
     viewModel { LoginViewModel(get()) }
+    viewModel { RegisterViewModel(get()) }
+
 
 }

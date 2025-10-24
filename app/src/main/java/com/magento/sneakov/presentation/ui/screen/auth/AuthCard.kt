@@ -34,7 +34,7 @@ fun AuthCard(modifier: Modifier, onNavigateToHome: () -> Unit) {
                 }
             }
             else{
-                RegisterForm {
+                RegisterForm(onSuccessRegister = {isLogin = true}) {
                     isLogin = true
                 }
             }
