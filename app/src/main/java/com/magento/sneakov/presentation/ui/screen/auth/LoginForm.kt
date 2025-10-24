@@ -70,7 +70,7 @@ fun LoginForm(viewModel: LoginViewModel = koinViewModel(), onNavigateToHome: ()-
         var emailError by remember { mutableStateOf<String?>(null) }
         var passwordError by remember { mutableStateOf<String?>(null) }
 
-        val passwordRegex = Regex("^(?=.*\\d).{6,}$")
+        val passwordRegex = Regex("^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#\$%^&*()_+\\-={}\\[\\]|:;\"'<>,.?/~]).{6,}$")
         val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
         OutlinedTextField(
@@ -166,7 +166,7 @@ fun LoginForm(viewModel: LoginViewModel = koinViewModel(), onNavigateToHome: ()-
                 .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(5.dp),
-            enabled = passwordError == null && emailError == null,
+            enabled = passwordError == null && emailError == null && uiState.isLoading,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.onSurface,
                 contentColor = MaterialTheme.colorScheme.surface
