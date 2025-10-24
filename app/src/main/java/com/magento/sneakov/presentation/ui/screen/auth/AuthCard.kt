@@ -17,7 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 @Composable
-fun LoginCard(modifier: Modifier) {
+fun AuthCard(modifier: Modifier, onNavigateToHome: () -> Unit) {
     var isLogin by remember { mutableStateOf(true) }
     Box(
         modifier = modifier
@@ -29,7 +29,7 @@ fun LoginCard(modifier: Modifier) {
     ) {
         AnimatedContent(targetState = isLogin) {showLogin ->
             if(showLogin){
-                LoginForm{
+                LoginForm(onNavigateToHome = onNavigateToHome){
                     isLogin = false
                 }
             }
