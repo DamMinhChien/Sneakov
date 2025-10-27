@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.magento.sneakov.Constants.BASE_URL
 import com.magento.sneakov.data.local.DataStoreManager
 import com.magento.sneakov.data.remote.api.SneakovApiService
 import com.magento.sneakov.data.respository.AuthRepositoryImpl
@@ -27,8 +28,9 @@ import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-private val BASE_URL =
-    "https://overcontented-berniece-congressionally.ngrok-free.dev" + "/rest/default/V1/"
+//private val BASE_URL =
+//    "https://overcontented-berniece-congressionally.ngrok-free.dev" + "/rest/default/V1/"
+
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app_preferences")
 val appModule = module {
     // ⚙️ DataStore

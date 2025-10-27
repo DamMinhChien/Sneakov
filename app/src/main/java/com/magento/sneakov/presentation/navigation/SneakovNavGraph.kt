@@ -69,7 +69,7 @@ fun SneakovNavGraph(navController: NavHostController, modifier: Modifier) {
                 navController.getBackStackEntry(Screen.Search.route)
             }
             val viewModel: SearchViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
-            SearchResultScreen(viewModel = viewModel)
+            SearchResultScreen(viewModel = viewModel, onProductClick = {})
         }
 
 
