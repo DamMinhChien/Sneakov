@@ -1,7 +1,7 @@
 package com.magento.sneakov.data.remote.dto
 
 data class SearchRespondDto(
-    val items: List<ProductDto>,
+    val items: List<ProductDto>?,
     val total_count: Int
 )
 
