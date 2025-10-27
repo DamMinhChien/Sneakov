@@ -5,5 +5,7 @@ data class Product(
     val sku: String,
     val name: String,
     val price: Double,
-    val imageUrl: String?
+    val imageUrl: String?,
+    val childIds: List<Int> = emptyList(),
+    var priceRange: Pair<Double, Double>? = null
 )

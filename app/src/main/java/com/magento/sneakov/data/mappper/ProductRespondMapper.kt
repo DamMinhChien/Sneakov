@@ -5,7 +5,7 @@ import com.magento.sneakov.data.remote.dto.ProductDto
 import com.magento.sneakov.domain.model.Product
 
 fun ProductDto.toDomain(): Product {
-    val baseMedia = Constants.BASE_MEDIA
+    val baseMedia = Constants.IMAGE_URL
     val imageUrl = custom_attributes
         ?.find { it.attribute_code == "image" }
         ?.value
@@ -17,11 +17,14 @@ fun ProductDto.toDomain(): Product {
             }
         }
 
+    val childIds = extension_attributes?.configurable_product_links ?: emptyList()
+
     return Product(
         name = name,
         id = id,
         price = price,
         sku = sku,
-        imageUrl = imageUrl
+        imageUrl = imageUrl,
+        childIds = childIds,
     )
 }
