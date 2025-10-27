@@ -130,7 +130,7 @@ fun RegisterForm(
             isError = password.isNotEmpty() && !isPasswordValid,
             supportingText = {
                 if (password.isNotEmpty() && !isPasswordValid) {
-                    Text("Mật khẩu phải ≥ 6 ký tự và có ít nhất 1 số")
+                    Text("Mật khẩu phải ≥ 6 ký tự, it nhất 1 chữ hoa, 1 chữ số và 1 ký tự đặc biệt")
                 }
             },
             leadingIcon = {
@@ -158,7 +158,7 @@ fun RegisterForm(
         // --- NÚT ĐĂNG KÝ ---
         Button(
             onClick = {viewModel.register(email = email, password = password, fullName = name)},
-            enabled = isFormValid && state.isLoading,
+            enabled = isFormValid && !state.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
