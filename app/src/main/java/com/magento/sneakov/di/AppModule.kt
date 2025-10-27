@@ -8,14 +8,20 @@ import com.magento.sneakov.Constants.BASE_URL
 import com.magento.sneakov.data.local.DataStoreManager
 import com.magento.sneakov.data.remote.api.SneakovApiService
 import com.magento.sneakov.data.respository.AuthRepositoryImpl
+import com.magento.sneakov.data.respository.CategoryRepositoryImpl
 import com.magento.sneakov.data.respository.ProductRepositoryImpl
 import com.magento.sneakov.domain.respository.AuthRepository
+import com.magento.sneakov.domain.respository.CategoryRepository
 import com.magento.sneakov.domain.respository.ProductRepository
+import com.magento.sneakov.domain.usecase.GetCategoriesUseCase
+import com.magento.sneakov.domain.usecase.GetDisplayPriceUseCase
+import com.magento.sneakov.domain.usecase.GetProductVariantsUseCase
 import com.magento.sneakov.domain.usecase.LoginUseCase
 import com.magento.sneakov.domain.usecase.RegisterUseCase
 import com.magento.sneakov.domain.usecase.SearchProductsUseCase
 import com.magento.sneakov.presentation.ui.screen.auth.LoginViewModel
 import com.magento.sneakov.presentation.ui.screen.auth.RegisterViewModel
+import com.magento.sneakov.presentation.ui.screen.category.CategoryViewModel
 import com.magento.sneakov.presentation.ui.screen.home.HomeViewModel
 import com.magento.sneakov.presentation.ui.screen.search.SearchViewModel
 import com.magento.sneakov.presentation.ui.screen.searchResult.SearchResultViewModel
@@ -76,17 +82,21 @@ val appModule = module {
     // Repository
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<ProductRepository> { ProductRepositoryImpl(get()) }
+    single<CategoryRepository> { CategoryRepositoryImpl(get()) }
 
     // UseCase
     factory { LoginUseCase(get(), get()) }
     factory { RegisterUseCase(get()) }
     factory { SearchProductsUseCase(get()) }
+    factory { GetDisplayPriceUseCase(get()) }
+    factory { GetProductVariantsUseCase(get()) }
+    factory { GetCategoriesUseCase(get()) }
 
     // ViewModel
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel(get()) }
     //viewModel { HomeViewModel(get()) }
-    viewModel { SearchViewModel(get()) }
-    //viewModel { SearchResultViewModel(get()) }
+    viewModel { SearchViewModel(get(), get()) }
+    viewModel { CategoryViewModel(get()) }
 
 }

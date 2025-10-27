@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.magento.sneakov.domain.model.SearchRequestBuilder
 import com.magento.sneakov.domain.model.SearchRespond
+import com.magento.sneakov.domain.usecase.GetDisplayPriceUseCase
 import com.magento.sneakov.domain.usecase.SearchProductsUseCase
 import com.magento.sneakov.domain.util.AppResult
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,7 @@ data class SearchUiState(
     val errorMessage: String? = null
 )
 
-class SearchViewModel(private val searchProductsUseCase: SearchProductsUseCase) : ViewModel() {
+class SearchViewModel(private val searchProductsUseCase: SearchProductsUseCase, private val getDisplayPriceUseCase: GetDisplayPriceUseCase) : ViewModel() {
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState
 
@@ -35,11 +36,40 @@ class SearchViewModel(private val searchProductsUseCase: SearchProductsUseCase) 
 
             when (val result = searchProductsUseCase(request)) {
                 is AppResult.Success -> {
-                    Log.d("SearchViewModel", "Result data: ${result.data}")
+                    val searchResult = result.data
+                    val updatedItems = searchResult.items?.toMutableList() ?: mutableListOf()
+
+                    //  Tạo danh sách có thêm giá min-max
+                    updatedItems.forEachIndexed { index, product ->
+                        viewModelScope.launch {
+                            when (val priceResult = getDisplayPriceUseCase(product.sku)) {
+                                is AppResult.Success -> {
+                                    // bạn có thể log hoặc gán thêm field priceRange nếu muốn
+                                    val (minPrice, maxPrice) = priceResult.data
+                                    updatedItems[index] = product.copy(priceRange = minPrice to maxPrice)
+
+                                    // Cập nhật lại state để UI recompose
+                                    _uiState.value = _uiState.value.copy(
+                                        result = _uiState.value.result?.copy(items = updatedItems)
+                                    )
+
+                                    Log.d(
+                                        "SearchViewModel",
+                                        "SKU ${product.sku} => Giá ${priceResult.data.first} - ${priceResult.data.second}"
+                                    )
+                                }
+                                is AppResult.Error -> {
+                                    Log.e("SearchViewModel", "Lỗi lấy giá: ${priceResult.message}")
+                                }
+                                else -> Unit
+                            }
+                        }
+                        product
+                    }
+
                     _uiState.value = SearchUiState(
-                        result = result.data,
-                        isLoading = false,
-                        errorMessage = null
+                        result = searchResult.copy(items = updatedItems),
+                        isLoading = false
                     )
                 }
                 is AppResult.Error -> {
@@ -52,6 +82,7 @@ class SearchViewModel(private val searchProductsUseCase: SearchProductsUseCase) 
                     _uiState.value = _uiState.value.copy(isLoading = true)
                 }
             }
+
         }
 
     }
