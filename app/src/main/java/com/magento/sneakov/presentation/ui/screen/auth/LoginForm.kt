@@ -46,12 +46,16 @@ import compose.icons.fontawesomeicons.solid.Lock
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun LoginForm(viewModel: LoginViewModel = koinViewModel(), onNavigateToHome: ()-> Unit, onNavigateToRegister: () -> Unit) {
+fun LoginForm(
+    viewModel: LoginViewModel = koinViewModel(),
+    onNavigateToHome: () -> Unit,
+    onNavigateToRegister: () -> Unit
+) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(uiState.isSuccess) {
-        if(uiState.isSuccess){
+        if (uiState.isSuccess) {
             onNavigateToHome()
         }
     }
@@ -70,14 +74,15 @@ fun LoginForm(viewModel: LoginViewModel = koinViewModel(), onNavigateToHome: ()-
         var emailError by remember { mutableStateOf<String?>(null) }
         var passwordError by remember { mutableStateOf<String?>(null) }
 
-        val passwordRegex = Regex("^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#\$%^&*()_+\\-={}\\[\\]|:;\"'<>,.?/~]).{6,}$")
+        val passwordRegex =
+            Regex("^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#\$%^&*()_+\\-={}\\[\\]|:;\"'<>,.?/~]).{6,}$")
         val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
         OutlinedTextField(
             value = email,
             onValueChange = {
                 email = it.trim()
-                emailError = when{
+                emailError = when {
                     it.isBlank() -> "Email không được để trống"
                     !emailRegex.matches(it) -> "Email không hợp lệ"
                     else -> null
@@ -85,7 +90,7 @@ fun LoginForm(viewModel: LoginViewModel = koinViewModel(), onNavigateToHome: ()-
             },
             isError = emailError != null,
             supportingText = {
-                if (emailError != null){
+                if (emailError != null) {
                     Text(
                         text = emailError!!,
                         color = MaterialTheme.colorScheme.error
@@ -106,10 +111,10 @@ fun LoginForm(viewModel: LoginViewModel = koinViewModel(), onNavigateToHome: ()-
             value = password,
             onValueChange = {
                 password = it.trim()
-                passwordError = when{
+                passwordError = when {
                     it.isBlank() -> "Mật khẩu không được để trống"
                     it.length < 6 -> "Mật khẩu phải có ít nhất 6 ký tự"
-                    !passwordRegex.matches(it) -> "Phải có ít nhất 1 chữ hoa và 1 chữ số"
+                    !passwordRegex.matches(it) -> "Phải có ít nhất 1 chữ hoa, 1 chữ số và 1 ký tự đặc biệt"
                     else -> null
                 }
             },
@@ -134,7 +139,7 @@ fun LoginForm(viewModel: LoginViewModel = koinViewModel(), onNavigateToHome: ()-
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
-                        imageVector = if(passwordVisible) FontAwesomeIcons.Solid.Eye else FontAwesomeIcons.Solid.EyeSlash,
+                        imageVector = if (passwordVisible) FontAwesomeIcons.Solid.Eye else FontAwesomeIcons.Solid.EyeSlash,
                         contentDescription = if (passwordVisible) "Ẩn mật khẩu" else "Hiện mật khẩu",
                         modifier = Modifier.size(24.dp),
                     )
@@ -166,7 +171,11 @@ fun LoginForm(viewModel: LoginViewModel = koinViewModel(), onNavigateToHome: ()-
                 .fillMaxWidth()
                 .height(50.dp),
             shape = RoundedCornerShape(5.dp),
-            enabled = passwordError == null && emailError == null && uiState.isLoading,
+            enabled = email.isNotBlank() &&
+                    password.isNotBlank() &&
+                    emailError == null &&
+                    passwordError == null &&
+                    !uiState.isLoading,
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.onSurface,
                 contentColor = MaterialTheme.colorScheme.surface
@@ -195,9 +204,10 @@ fun LoginForm(viewModel: LoginViewModel = koinViewModel(), onNavigateToHome: ()-
 
         when {
             uiState.isLoading -> CircularProgressIndicator()
-            uiState.token != null -> Text("Token: ${uiState.token}")
+            //uiState.token != null -> Text("Token: ${uiState.token}")
             uiState.error != null -> Text("Error: ${uiState.error}")
-            uiState.isSuccess -> Toast.makeText(context, "Đăng nhập thành công!", Toast.LENGTH_LONG).show()
+            uiState.isSuccess -> Toast.makeText(context, "Đăng nhập thành công!", Toast.LENGTH_LONG)
+                .show()
         }
     }
 }
