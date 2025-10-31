@@ -42,7 +42,7 @@ fun ProductCard(
     } ?: "Giá đang cập nhật..."
     Card(
         modifier = modifier
-            .fillMaxWidth()
+            //.fillMaxWidth()
             .clickable { onClick(product) },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(4.dp),

@@ -18,20 +18,28 @@ data class SearchUiState(
     val errorMessage: String? = null
 )
 
-class SearchViewModel(private val searchProductsUseCase: SearchProductsUseCase, private val getDisplayPriceUseCase: GetDisplayPriceUseCase) : ViewModel() {
+class SearchViewModel(
+    private val searchProductsUseCase: SearchProductsUseCase,
+    private val getDisplayPriceUseCase: GetDisplayPriceUseCase
+) : ViewModel() {
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState
 
-    fun search(keyword: String) {
-        if (keyword.isBlank()) return
+    fun search(
+        keyword: String = "",
+        sortField: String = "name",
+        sortDirection: String = "ASC",
+        page: Int = 1, pageSize: Int = 20
+    ) {
+        //if (keyword.isBlank()) return
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             val request = SearchRequestBuilder()
                 .filter(field = "name", value = "%${keyword}%", conditionType = "like")
                 .filter(field = "type_id", value = "configurable", conditionType = "eq")
-                .page(1, 20)
-                .sort(field = "name", direction = "ASC")
+                .page(page, pageSize)
+                .sort(field = sortField, direction = sortDirection)
                 .build()
 
             when (val result = searchProductsUseCase(request)) {
@@ -46,7 +54,8 @@ class SearchViewModel(private val searchProductsUseCase: SearchProductsUseCase, 
                                 is AppResult.Success -> {
                                     // bạn có thể log hoặc gán thêm field priceRange nếu muốn
                                     val (minPrice, maxPrice) = priceResult.data
-                                    updatedItems[index] = product.copy(priceRange = minPrice to maxPrice)
+                                    updatedItems[index] =
+                                        product.copy(priceRange = minPrice to maxPrice)
 
                                     // Cập nhật lại state để UI recompose
                                     _uiState.value = _uiState.value.copy(
@@ -58,9 +67,11 @@ class SearchViewModel(private val searchProductsUseCase: SearchProductsUseCase, 
                                         "SKU ${product.sku} => Giá ${priceResult.data.first} - ${priceResult.data.second}"
                                     )
                                 }
+
                                 is AppResult.Error -> {
                                     Log.e("SearchViewModel", "Lỗi lấy giá: ${priceResult.message}")
                                 }
+
                                 else -> Unit
                             }
                         }
@@ -72,12 +83,14 @@ class SearchViewModel(private val searchProductsUseCase: SearchProductsUseCase, 
                         isLoading = false
                     )
                 }
+
                 is AppResult.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         errorMessage = result.message
                     )
                 }
+
                 AppResult.Loading -> {
                     _uiState.value = _uiState.value.copy(isLoading = true)
                 }
@@ -87,7 +100,7 @@ class SearchViewModel(private val searchProductsUseCase: SearchProductsUseCase, 
 
     }
 
-    fun resetError(){
+    fun resetError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 }

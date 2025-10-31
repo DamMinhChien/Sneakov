@@ -1,5 +1,6 @@
 package com.magento.sneakov.presentation.ui.screen.home
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,26 +33,42 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.ui.components.BaseCard
+import com.magento.sneakov.R
+import com.magento.sneakov.domain.model.Product
 import com.magento.sneakov.presentation.ui.compose.LoadingOverlay
+import com.magento.sneakov.presentation.ui.compose.ProductCard
 import com.magento.sneakov.presentation.ui.screen.category.CategoryViewModel
+import com.magento.sneakov.presentation.ui.screen.search.SearchViewModel
 import com.magento.sneakov.presentation.ui.theme.SneakovTheme
 import compose.icons.FontAwesomeIcons
 import compose.icons.fontawesomeicons.Solid
 import compose.icons.fontawesomeicons.solid.Search
 import org.koin.androidx.compose.koinViewModel
-import com.magento.sneakov.R
 
 @Composable
-fun HomeScreen(viewModel: CategoryViewModel = koinViewModel(), navigateToSearchScreen: () -> Unit) {
-    val uiState by viewModel.uiState.collectAsState()
+fun HomeScreen(
+    categoryViewModel: CategoryViewModel = koinViewModel(),
+    navigateToSearchScreen: () -> Unit,
+    newProductViewModel: SearchViewModel = koinViewModel(),
+    onProductClick: (Product) -> Unit
+) {
+    val categoryState by categoryViewModel.uiState.collectAsState()
+    val newProductState by newProductViewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val products = newProductState.result?.items
     LaunchedEffect(Unit) {
-        viewModel.getCategories()
+        Log.d("Check", "Category LaunchedEffect chạy")
+        categoryViewModel.getCategories()
+    }
+    LaunchedEffect(Unit) {
+        Log.d("Check", "Search LaunchedEffect chạy")
+        newProductViewModel.search(keyword = "", sortField = "created_at", sortDirection = "DESC", page = 1, pageSize = 10)
     }
     Box(
         modifier = Modifier
@@ -82,16 +100,18 @@ fun HomeScreen(viewModel: CategoryViewModel = koinViewModel(), navigateToSearchS
                     )
                 }
             }
-
             Spacer(modifier = Modifier.height(20.dp))
-
 //            Text("abcwwkfhs: ${uiState.result}")
+            Text("Danh mục sản phẩm", style = MaterialTheme.typography.bodyLarge)
             // Danh sách danh mục
-            if (uiState.result.isNotEmpty()) {
-                val categories = uiState.result
-                LazyRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (categoryState.result.isNotEmpty()) {
+                val categories = categoryState.result
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
                     items(categories) { category ->
-                        BaseCard() {
+                        BaseCard {
                             AsyncImage(
                                 model = category.imageUrl,
                                 contentDescription = category.name,
@@ -106,22 +126,50 @@ fun HomeScreen(viewModel: CategoryViewModel = koinViewModel(), navigateToSearchS
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(20.dp))
+            // Sản phẩm mới
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Hàng mới về", style = MaterialTheme.typography.bodyLarge)
+                Text("Xem tất cả", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+            }
+            if (!products.isNullOrEmpty()) {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(items = products) { product ->
+                        Log.d("Check", "product: $product")
+                        ProductCard(
+                            modifier = Modifier.fillMaxWidth(1f / 3f).aspectRatio(0.75f),
+                            product = product,
+                            onClick = onProductClick
+                        )
+                    }
+
+                }
+            } else {
+                Text(text = "Không có sản phẩm nào!", textAlign = TextAlign.Center)
+            }
         }
     }
     when {
-        uiState.isLoading -> LoadingOverlay(isLoading = true)
+        categoryState.isLoading -> LoadingOverlay(isLoading = true)
 
-        uiState.errorMessage != null -> {
-            Toast.makeText(context, uiState.errorMessage, Toast.LENGTH_LONG).show()
-            viewModel.resetError()
+        categoryState.errorMessage != null -> {
+            Toast.makeText(context, categoryState.errorMessage, Toast.LENGTH_LONG).show()
+            categoryViewModel.resetError()
         }
     }
 }
 
 @Composable
 @Preview(showSystemUi = true, showBackground = true)
-fun HomePreView() {
+fun HomePreViewNice() {
     SneakovTheme {
-        HomeScreen(navigateToSearchScreen = {})
+        HomeScreen(
+            navigateToSearchScreen = {},
+            onProductClick = {},
+        )
     }
 }

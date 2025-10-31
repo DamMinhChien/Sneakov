@@ -1,73 +1,93 @@
 package com.magento.sneakov.presentation.ui.screen.search
 
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.magento.sneakov.domain.model.Product
 import com.magento.sneakov.presentation.ui.compose.ProductCard
-import com.magento.sneakov.presentation.ui.theme.SneakovTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun SearchResultScreen(viewModel: SearchViewModel = koinViewModel(), onProductClick: (Product) -> Unit) {
+fun SearchResultScreen(
+    keyword: String,
+    sortField: String = "created_at",
+    sortDirection: String = "DESC",
+    page: Int = 1,
+    pageSize: Int = 20,
+    onProductClick: (Product) -> Unit,
+    viewModel: SearchViewModel = koinViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    val products = uiState.result?.items
 
-    Log.d("SearchViewModel", "View: ${uiState}")
-    LaunchedEffect(uiState) {
-        Log.d("SearchViewModel", "View updated: $uiState")
+    /**
+     * ✅ Gọi API khi các tham số thay đổi (keyword, sortField, sortDirection, page, pageSize)
+     */
+    LaunchedEffect(keyword, sortField, sortDirection, page, pageSize) {
+        Log.d("SearchResultScreen", "Searching for: $keyword, sort=$sortField $sortDirection")
+        viewModel.search(
+            keyword = keyword,
+            sortField = sortField,
+            sortDirection = sortDirection,
+            page = page,
+            pageSize = pageSize
+        )
     }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .padding(24.dp)) {
-        Column {
-            if (!products.isNullOrEmpty()){
+    val products = uiState.result?.items.orEmpty()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        when {
+            uiState.isLoading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+
+            uiState.errorMessage != null -> {
+                Text(
+                    text = "Lỗi: ${uiState.errorMessage}",
+                    modifier = Modifier.align(Alignment.Center),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            products.isEmpty() -> {
+                Text(
+                    text = "Không có sản phẩm nào!",
+                    modifier = Modifier.align(Alignment.Center),
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            else -> {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ){
-                    items(items = products) { product ->
+                ) {
+                    items(products) { product ->
                         ProductCard(
                             product = product,
-                            onClick = onProductClick
+                            onClick = { onProductClick(product) }
                         )
                     }
-
                 }
             }
-            else{
-                Text(text = "Không có sản phẩm nào!", textAlign = TextAlign.Center)
-            }
         }
-    }
-}
-
-@Composable
-@Preview(showSystemUi = true, showBackground = true)
-fun SearchResultScreenPreView() {
-    SneakovTheme {
-        SearchResultScreen(koinViewModel(), onProductClick = {})
     }
 }
