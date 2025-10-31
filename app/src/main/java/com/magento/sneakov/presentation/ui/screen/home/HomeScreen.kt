@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,6 +45,7 @@ import com.magento.sneakov.R
 import com.magento.sneakov.domain.model.Product
 import com.magento.sneakov.presentation.ui.compose.LoadingOverlay
 import com.magento.sneakov.presentation.ui.compose.ProductCard
+import com.magento.sneakov.presentation.ui.compose.RefreshableLayout
 import com.magento.sneakov.presentation.ui.screen.category.CategoryViewModel
 import com.magento.sneakov.presentation.ui.screen.search.SearchViewModel
 import com.magento.sneakov.presentation.ui.theme.SneakovTheme
@@ -68,15 +71,32 @@ fun HomeScreen(
     }
     LaunchedEffect(Unit) {
         Log.d("Check", "Search LaunchedEffect chạy")
-        newProductViewModel.search(keyword = "", sortField = "created_at", sortDirection = "DESC", page = 1, pageSize = 10)
+        newProductViewModel.search(
+            keyword = "",
+            sortField = "created_at",
+            sortDirection = "DESC",
+            page = 1,
+            pageSize = 10
+        )
     }
-    Box(
+    RefreshableLayout(
+        isRefreshing = categoryState.isLoading || newProductState.isLoading,
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp)
+            .padding(24.dp),
+        onRefresh = {
+            categoryViewModel.getCategories()
+            newProductViewModel.search(
+                keyword = "",
+                sortField = "created_at",
+                sortDirection = "DESC",
+                page = 1,
+                pageSize = 10
+            )
+        }
     ) {
-        Column {
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()) ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -101,7 +121,7 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(20.dp))
-//            Text("abcwwkfhs: ${uiState.result}")
+            //            Text("abcwwkfhs: ${uiState.result}")
             Text("Danh mục sản phẩm", style = MaterialTheme.typography.bodyLarge)
             // Danh sách danh mục
             if (categoryState.result.isNotEmpty()) {
@@ -128,9 +148,16 @@ fun HomeScreen(
             }
             Spacer(modifier = Modifier.height(20.dp))
             // Sản phẩm mới
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text("Hàng mới về", style = MaterialTheme.typography.bodyLarge)
-                Text("Xem tất cả", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                Text(
+                    "Xem tất cả",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
             if (!products.isNullOrEmpty()) {
                 LazyRow(
@@ -141,7 +168,9 @@ fun HomeScreen(
                     items(items = products) { product ->
                         Log.d("Check", "product: $product")
                         ProductCard(
-                            modifier = Modifier.fillMaxWidth(1f / 3f).aspectRatio(0.75f),
+                            modifier = Modifier
+                                .fillMaxWidth(1f / 3f)
+                                .aspectRatio(0.75f),
                             product = product,
                             onClick = onProductClick
                         )
